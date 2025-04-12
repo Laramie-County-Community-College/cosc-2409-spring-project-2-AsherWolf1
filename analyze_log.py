@@ -46,8 +46,8 @@ def extract_log_data(line):
     #please note that you do not need to edit this function, just the analyze_log_file function above!
     #example usage: timestamp, ip, url, status_code = extract_log_data(line)
     
-    
-    """Extracts timestamp, IP address, URL, and status code from a valid log line.
+    #added the r so \d does not escape
+    r"""Extracts timestamp, IP address, URL, and status code from a valid log line.
 
     **Instructions:**
     1. Use regular expressions (re module) to extract the data from the log line format:
@@ -75,7 +75,47 @@ def extract_log_data(line):
 
 
 # Generate a sample log file (uncomment to create the file)
-# generate_log_file()
+ #generate_log_file()
 
 # Analyze the log file
+def analyze_log_file(filename="access.log"):
+    
+    
+    try:
+        with open(filename, "r") as file:
+            log_lines = file.readlines()
+    except FileNotFoundError:
+        print(f"Error: Log file '{filename}' not found.")
+        return
+
+    error_count = 0
+    unique_ips = set()
+    url_counts = {}
+
+    for line in log_lines:
+        timestamp, ip, url, status_code = extract_log_data(line)
+
+        if ip and url and status_code:
+            unique_ips.add(ip)
+
+            if url in url_counts:
+                url_counts[url] += 1
+            else:
+                url_counts[url] = 1
+
+            if int(status_code) >= 400:
+                error_count += 1
+
+    
+    print(f"Total Errors (4xx and 5xx): {error_count}")
+    print(f"Unique IP Addresses: {len(unique_ips)}")
+    print("URL Access Counts:")
+    for url, count in sorted(url_counts.items(), key=lambda x: x[1], reverse=True):
+        print(f"    {url}: {count}")
+
+
+
 analyze_log_file()
+
+    
+
